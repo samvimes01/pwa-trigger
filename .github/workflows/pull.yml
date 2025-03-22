@@ -1,0 +1,54 @@
+name: Mobile App Build and Firebase Distribution
+
+# This workflow will be manually triggered from GitHub UI, or opened by a pull request
+on:
+    pull_request:
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: 'Environment to build for'
+                required: true
+                default: 'plus'
+                type: choice
+                options:
+                    - app
+                    - plus
+
+jobs:
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+        timeout-minutes: 5  # Add timeout to prevent hung builds
+
+        steps:
+            - name: Set Environment Variables
+              run: |
+                  # Set default environment based on event type
+                  if [ "${{ github.event_name }}" = "pull_request" ]; then
+                    # Default environment for pull requests is "plus"
+                    echo "KIND=plus" >> $GITHUB_ENV
+                  else
+                    # For workflow_dispatch, use the input parameter
+                    echo "KIND=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+                  fi
+
+                  # Use the KIND variable to set all other variables
+                  if [ "${{ env.KIND }}" = "plus" ]; then
+                    echo "CFG=plus" >> $GITHUB_ENV
+                  else
+                    echo "CFG=production" >> $GITHUB_ENV
+                  fi
+                  echo "FASTLANE_SKIP_UPDATE_CHECK=true" >> $GITHUB_ENV
+
+                  # Set branch name based on event type
+                  if [ "${{ github.event_name }}" = "pull_request" ]; then
+                    echo "BRANCH=${{ github.head_ref }}" >> $GITHUB_ENV
+                  else
+                    echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
+                  fi
+
+            - name: Debug info
+              run: |
+                  echo "KIND=${{ env.KIND }}"
+                  echo "CFG=${{ env.CFG }}"
+                  echo "BRANCH=${{ env.BRANCH }}"
