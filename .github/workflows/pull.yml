@@ -26,26 +26,21 @@ jobs:
                   # Set default environment based on event type
                   if [ "${{ github.event_name }}" = "pull_request" ]; then
                     # Default environment for pull requests is "plus"
-                    echo "KIND=plus" >> $GITHUB_ENV
+                    KIND=plus
                   else
                     # For workflow_dispatch, use the input parameter
-                    echo "KIND=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+                    KIND=${{ github.event.inputs.environment }}
                   fi
 
                   # Use the KIND variable to set all other variables
-                  if [ "${{ env.KIND }}" = "plus" ]; then
+                  if [ "${KIND}" = "plus" ]; then
                     echo "CFG=plus" >> $GITHUB_ENV
                   else
                     echo "CFG=production" >> $GITHUB_ENV
                   fi
-                  echo "FASTLANE_SKIP_UPDATE_CHECK=true" >> $GITHUB_ENV
 
                   # Set branch name based on event type
-                  if [ "${{ github.event_name }}" = "pull_request" ]; then
-                    echo "BRANCH=${{ github.head_ref }}" >> $GITHUB_ENV
-                  else
-                    echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
-                  fi
+                  echo "BRANCH=${{ github.head_ref || github.ref_name }}" >> $GITHUB_ENV
 
             - name: Debug info
               run: |

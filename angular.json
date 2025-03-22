@@ -21,8 +21,8 @@
               "base": "dist",
               "browser": "main"
             },
-            "baseHref": "/main/",
-            "deployUrl": "/main/",
+            "baseHref": "/pwa-trigger/",
+            "deployUrl": "/pwa-trigger/",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
